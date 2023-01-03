@@ -53,6 +53,16 @@ CancelledFlights <- dbGetQuery(conn,"SELECT carriers.Description, COUNT(ontime.C
 CancelledFlights
 head(CancelledFlights,n=1 )
 write.csv(CancelledFlights,"cancelled-flights-DBI.csv")
+
+# QUIZ - Question 2
+# Which of the following airplanes has the lowest associated average departure delay (excluding cancelled and diverted flights)?
+depDelay <- dbGetQuery(conn,"SELECT  planes.model AS model, AVG(ontime.DepDelay) AS avg_delay FROM ontime INNER JOIN planes ON (ontime.TailNum = planes.tailnum)WHERE ontime.Cancelled = 0 AND ontime.Diverted = 0 AND ontime.DepDelay > 0 GROUP BY model ORDER BY avg_delay ASC")
+depDelay
+lwrModel <- head(depDelay,n=1)["model"]
+lwrModel
+write.csv(depDelay, "airplaneDepDelayAvg-DBI.csv")
+
+
 #Finally Close the Connection
 dbDisconnect(conn)
 
