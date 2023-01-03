@@ -62,6 +62,22 @@ lwrModel <- head(depDelay,n=1)["model"]
 lwrModel
 write.csv(depDelay, "airplaneDepDelayAvg-DBI.csv")
 
+#QUIZ - Question 3
+#Which of the following cities has the highest number of inbound flights (excluding cancelled flights)?
+
+highestInbound <- dbGetQuery(conn, "SELECT airports.city , COUNT(ontime.Dest) AS inbound_flights FROM ontime INNER JOIN airports ON (airports.iata = ontime.Dest) WHERE ontime.Cancelled = 0 GROUP BY airports.city ORDER BY inbound_flights DESC")
+head(highestInbound,n=1)
+write.csv(highestInbound, "cityHighestInbound-DBI.csv")
+
+#QUIZ - Question 4
+#Which of the following companies has the highest number of cancelled flights, relative to their number of total flights?
+
+percentCancelled <- dbGetQuery(conn, "SELECT carrier, CAST(total_flights as FLOAT), CAST(cancelled_flights AS FLOAT), ROUND((cancelled_flights/total_flights)* 100, 3) AS RATIO FROM (
+SELECT carriers.Description AS carrier, COUNT(ontime.UniqueCarrier) AS total_flights, SUM(ontime.Cancelled) AS cancelled_flights
+FROM ontime INNER JOIN carriers ON (ontime.UniqueCarrier = carriers.Code) GROUP BY carriers.Description ) ORDER BY RATIO DESC")
+
+percentCancelled[order('carrier CAST(total_flights as FLOAT')]
+percentCancelled
 
 #Finally Close the Connection
 dbDisconnect(conn)
