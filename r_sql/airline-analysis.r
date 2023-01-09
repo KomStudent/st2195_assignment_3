@@ -72,11 +72,12 @@ write.csv(highestInbound, "cityHighestInbound-DBI.csv")
 #QUIZ - Question 4
 #Which of the following companies has the highest number of cancelled flights, relative to their number of total flights?
 
-percentCancelled <- dbGetQuery(conn, "SELECT carrier, CAST(total_flights as FLOAT), CAST(cancelled_flights AS FLOAT), ROUND((cancelled_flights/total_flights)* 100, 3) AS RATIO FROM (
-SELECT carriers.Description AS carrier, COUNT(ontime.UniqueCarrier) AS total_flights, SUM(ontime.Cancelled) AS cancelled_flights
-FROM ontime INNER JOIN carriers ON (ontime.UniqueCarrier = carriers.Code) GROUP BY carriers.Description ) ORDER BY RATIO DESC")
+percentCancelled <- dbGetQuery(conn, "SELECT carrier, total_flights, cancelled_flights , CAST( cancelled_flights AS float)/ CAST(total_flights AS FLOAT) * 100 AS cancelledPercent
+FROM (SELECT carriers.Description AS carrier, COUNT(ontime.UniqueCarrier) AS total_flights, SUM(ontime.Cancelled) AS cancelled_flights
+FROM ontime INNER JOIN carriers ON (ontime.UniqueCarrier = carriers.Code) GROUP BY carriers.Description ORDER BY total_flights) ORDER BY cancelledPercent DESC")
 
-percentCancelled[order('carrier CAST(total_flights as FLOAT')]
+head(percentCancelled, n=1)
+write.csv(percentCancelled, "percentCancelled-DBI.csv")
 percentCancelled
 
 #Finally Close the Connection
